@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Technical Progress 1: Plotly</title>
+    <title>Technical Progress 2: D3</title>
 
     <!-- If you want to use a CSS framework, load it here (or in CSS) -->
-
     <!--Your stylesheet-->
     <link rel="stylesheet" href="css/main.css">
 
-    <!--Plotly CDN-->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!--D3 CDN-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.min.js"></script>
 
     <!-- Load jQuery library -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -25,88 +23,19 @@
 
 <body>
     <!-- Create a header that describes the project -->
-    <header>
-        <h1>Assignment 1: Plotly Design</h1>
-        <p>
-            a-1  |   Alex Chow
-        </p>
-    </header>
-
-    <div id="main">
-        <div id = "section">
-            <h2>Grouped Bar Chart</h2>
-            <p id = "question">
-                Question:  How does the minimum inhibitory concentration (MIC) of each antibiotic compare grouped by bacteria?
-            </p>
-
-            <div id="plot1">
-            </div>
-
-            <p id="explanation">
-                The first question asked is a basic and open-ended exploratory question.  How does all this data relate to each other?  More specifically, how does the MIC of each antibiotic relate to each other when grouped by a target bacteria?  Through this introductory question, I decided to build a basic bar chart, which is a good first step at exploring relationships.  In this bar chart, I had my X-axis categorized by each bacteria in the dataset, with 3 bars for each bacteria to display the MIC of penicilin, streptomycin, and neomycin.  I used a log scale on the y-axis to display this data because the disparity between some highs (like 870 for penicilin) and some lows (like .001) were too great to display visually using a fixed scale.
-
-                <br></br>
-                To first explore the data, it seemed reasonable to first look at a basic grouped bar chart.  A standard grouped bar chart is an excellent initial way to look at data in order to find potential relationships or correlations that demand further exploration.  This is because a grouped bar chart looks at the data as is, and simply looks at the varying values of each bar for each variable, allowing a reader's brain to perceive potential further relationships.  Immediately through this grouped bar chart, we are able to visually see certain relationships.  It appears that the penicilin values are high when the streptomycin or neomycin values are low, and vice versa.  Additionally, it appears like streptomycin and neomycin have similar values often.  This raises the questions of if there is a correlation between streptomycin and neomycin effectiveness and if penicilin effectiveness is inversely related to these other antibiotics.  Additionally, there appears to be a potential disparity of the distribution between the different antibiotics, so is there a way to see this better?
-               
-            </p>
+    <div class="jumbotron container-fluid">
+        <div class="container">
+            <h1>Technical Progress 2: D3</h1>
+            <p>tp-2 | Data source from Airbnb, by way of <a href="http://databits.io/challenges/airbnb-user-pathways-challenge" target="_blank">Databits</a></p>
         </div>
+    </div>
 
-        <div id = "section">
-            <h2>Line Chart</h2>
-            <p id="question">
-                Question:  Is there an inverse correlation between penicilin effectiveness and the effectiveness of streptomycin and neomycin?
-            </p>
+    <div class="container">
+        <h2>Bar chart</h2>
+        <p>Question: What are the most common devices/apps used by people who connect to Airbnb (between May 2014 and April 2015)?</p>
 
-            <div id="plot2">
-            </div>
-
-            <p id="explanation">
-                In order to further explore this potential relationship, it was necessary to first find a way to order the data.  I decided that because I was evaluating penicilin on its own, and streptomycin and neomycin in a somewhat related fashion, I would isolate the penicilin values and display it in ascending order.  Thus, I had to conduct some non-trivial sorting operations and redefining of variables in order to produce sorted data for all the data.  Then, I was able to display it visually using a line chart.  Again, I used a log scale to display the elements in order to better recognize relationships and trends that might be hidden or trivialized by a non-log scale.
-
-                <br></br>
-                In order to explore inverse relationships, a line chart seems the most effective because it is able to track trends along the y-axis among all 3 antibiotics.  It was critical to sort by one of the variables and since I am targeting and isolation penicilin, this sort was effective.  The chart displays penicilin's increase over the y-axis for each subsequent bacterium, while streptomycin and neomycin were not increasing at each subsequent variable.  
-                <br></br>
-                Some things become quickly apparent from this visualization.  First, there seems to be a much more pronounced relationship between streptomycin and neomycin, as was previously hypothesized.  Throughout the chart, their lines tend to increase and decrease at roughly the same times, and at many places such as the beginning and end of the chart, are roughly the same.  Even at their greatest disparity in the middle portion of the chart, they are still following the same trend.  This relationship was hinted at through the bar chart, but the sorted line chart confirmed the relationship.  Additionally, although an inverse relationship was hypothesized between penicilin and the other two antibiotics, the visualization is inconclusive at showing an apparent significance behind this hypothesis.  For example, in the first few bacteria, the penicilin is at its lowest MIC and highest effectiveness, while the other two antibiotics are at a rather high MIC (except for the second column) and a rather low effectiveness.  This would appear to confirm the hypothesis, but the other columns do not support the claim.  Even at the points where the penicilin MIC is highest, the other antibiotics are not lower than normal and do not display a negative correlation.  For this reason, that particular relationship is inconclusive.  Still, this chart did an excellent job at raising other questions.  First, as was noted before from chart 1, how can we explore the ranges of MIC of each antibiotic?  Furthermore, can the effectiveness of the MIC of each antibiotic in any way be related to the gram staining value, which has not been explored yet?
-               
-            </p>
-        </div>
-
-
-        <div id = "section">
-            <h2>Boxplot</h2>
-            <p id="question">
-                Question:  How does the distribution of each antibiotic compare to each other?
-            </p>
-            <div id="plot3">
-            </div>
-
-            <p id="explanation">
-                In order to explore the overall data underlying each antibiotic, an excellent way to compare them is through their distribution.  More specifically, their range, minimum, maximum, interquartile range, and median.  Our question asks us to explore this distribution and there is perhaps no better way than a simple box plot.  In my chart, I displayed a simple box plot, using a log scale, of each of the three antibiotics and their distributions.  They are all displayed jointly on the same chart, using a common scale.
-
-                <br></br>
-                This quick and simple chart allows us to compare distributions.  Through it, we can see some interesting insights, as well as many confirmed hypotheses.  First, it is apparent that penicilin has the largest range, with the lowest minimum (tie with neomycin) and the highest maximum.  Additionally, it has by far the largest interquartile range.  However there are some surprises to these distributions as well.  First and foremost, although we associated a relationship between streptomycin and neomycin, their distributions are quite dissimilar.  I expected them to line up similarly like on the line chart.  Instead, streptomycin has a higher minimum, maximum (when excluding outliers), interquartile range, and median.  In fact, its median is the same as penicilin's median!  Additionally, streptomycin's distribution is much more constrained, while neomycin's distribution is wider.  This box plot provided excellent insight into the nature of streptomycin and neomycin's relationship by looking at their distribution.  Contrary to expected, despite their similar trends in the line chart, their distributions are very distinct and dissimilar.  Finally, the last question needed to be answered is how the gram staining value is related to these antibiotic values.
-               
-            </p>
-        </div>
-
-
-        <div id= "section">
-            <h2>Triple Scatterplot</h2>
-            <p id="question">
-                Question: Is there a relationship between the gram staining result and the MIC of each antibiotic?
-            </p>
-            <div id="plot4">
-
-            </div>
-            <p id="explanation">
-                Although this question is specific and direct, it is difficult to explore this as it is still rather broad.  I wanted to figure out a chart type that could display all the antibiotic variables while also displaying the binary variable on whether the gram staining tested positive or negative.  Thus, I decided on a triple scatterplot, because it allows for three dimensions to be displayed on a 2d plane, as well as the use of color as a binary value.  In this scatterplot, I had penicilin MIC value on the x-axis, neomycin MIC on the y-axis, streptomycin value on the marker size, and the gram staining value based on the color of the marker.  If the marker is red, then the gram staining test is negative but if the marker is green, then the gram staining test is positive.  Unfortunately, I was unable to figure out how to get a legend to display this information.  For this reason, I am making it clear now.
-
-                <br></br>
-                From this chart type, we are able to make some pretty poignant observations.  First of all, the negative gram staining reactions tend to occur where peniclin is high.  It is difficult to distinguish a streptomycin relationship, as many sizes occur for a negative mark staining, but it does not occur where streptomycin is very very high.  Likewise, it does not occur where the neomycin MIC values are very high.  For this reason, the most interesting suggestion is a clear clustering indication for negative gram staining on the right bottom corner moving diagonally, while the rest clusters for a positive gram staining reaction.  This is a very interesting development and raises many potential further research questions.  These questions are more higher-level and domain specific now.  How does the thicker peptidoglycan layer of Gram-positive bacteria affect the MIC of each antibiotic?  How about the thinner peptidoglycan layer of the Gram-negative bacteria?  Because pennicilin relies on this layer to work (through inhibiting its function), does the data reflect this?  Immediate indications would suggest affirmation, because it has a higher MIC to Gram-negative bacteria, who have a thinner layer.  Although these initial indications seem suggestive, these visualizations provided an interesting but ultimately early investigation into the relationships of these antibiotics and bacteria.  More research and exploration is necessary to solidify some of the early indications, but this is an excellent and revealing start!             
-            </p>
-        </div>
-
-
+        <!--Create a svg with an id of viz-->
+        <svg id="viz"></svg>
     </div>
 
 </body>

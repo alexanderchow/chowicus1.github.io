@@ -1,223 +1,188 @@
-// Wait for DOM to finish loading
+/*
+ *  Alex Chow, tp2-d3
+ *  Info 474, Mike Freeman
+ *
+ */
+
 
 $(function() {
+    // Graph margin settings
+    var margin = {
+        top: 10,
+        right: 10,
+        bottom: 150,
+        left: 60
+    };
 
-    // read the data from the provided file
-    Plotly.d3.csv('./data/antibiotics-data.csv', function(err, rows){
+    // SVG width and height
+    var width = 960;
+    var height = 500;
 
-        // unpack the csv file into the two provided columnts
-        function unpack(rows, key) {
-            return rows.map(function(row) { return row[key]; });
+    // Graph width and height - accounting for margins
+    var drawWidth = width - margin.left - margin.right;
+    var drawHeight = height - margin.top - margin.bottom;
+
+    /************************************** Create chart wrappers ***************************************/
+    // Create a variable `svg` in which you store a selection of the element with id `viz`
+    // Set the width and height to your `width` and `height` variables
+    var svg = d3.select('#viz')
+    	.attr('width', width)
+    	.attr('height', height);
+
+    // Append a `g` element to your svg in which you'll draw your bars. Store the element in a variable called `g`, and
+    // Transform the g using `margin.left` and `margin.top`
+    
+    var g = svg.append('g')
+    	.attr('width', drawWidth)
+    	.attr('height', drawHeight)
+    	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+
+    // Load data in using d3's csv function.
+    d3.csv('data/airbnb.csv', function(error, csv_data) {
+
+        /************************************** Data prep ***************************************/
+
+        // You'll need to *aggregate* the data such that, for each device-app combo, you have the *count* of the number of occurances
+        // Lots of ways to do it, but here's a slick d3 approach: 
+        // http://www.d3noob.org/2014/02/grouping-and-summing-data-using-d3nest.html
+
+        var data = d3.nest()
+        	.key(function(d) { return d.dim_device_app_combo; })
+        	.rollup(function(v) { return v.length; })
+        	.entries(csv_data);
+
+        console.log(data[0]);
+        /************************************** Defining scales and axes ***************************************/
+
+        // Create an `xScale` for positioning the bars horizontally. Given the data type, `d3.scaleBand` is a good approach.
+
+        var keys = [];
+        for (var i = 0; i < data.length; i++) {
+        	keys.push(data[i].key);
         }
 
-        // variables for the data
-        var bacteria = unpack(rows, 'Bacteria'),
-            penicilin = unpack(rows, 'Penicilin'),
-            streptomycin = unpack(rows, 'Streptomycin'),
-            neomycin = unpack(rows, 'Neomycin'),
-            gram_staining = unpack(rows, 'Gram.Staining'),
-            MIC_TO_PX_SIZE = 1000;
+        console.log(keys);
 
+        var xScale = d3.scaleBand()
+        	.domain(keys)
+        	.range([0, drawWidth]);
+        // Using `d3.axisBottom`, create an `xAxis` object that holds can be later rendered in a `g` element
+        // Make sure to set the scale as your `xScale`
+
+        var xAxis = d3.axisBottom()
+        	.scale(xScale);
+
+
+        // Create a variable that stores the maximum count using `d3.max`, and multiply this valu by 1.1
+        // to create some breathing room in the top of the graph.
+        var maxCount = d3.max(data).value * 1.1;
+        console.log(maxCount);
+
+
+        // Create a `yScale` for drawing the heights of the bars. Given the data type, `d3.scaleLinear` is a good approach.
+        var values = [];
+        for (var i = 0; i < data.length; i++) {
+        	values.push(data[i].value);
+        }
+
+
+        var yMin = d3.min(data, function(d) {return +d.value}) * .90;
         
-        // initialize the data
-        var bar_trace1 = {
-            x: bacteria,
-            y: penicilin,
-            name: 'Penicilin',
-            type: 'bar'
-        };
-
-        var bar_trace2 = {
-            x: bacteria,
-            y: streptomycin,
-            name: 'Streptomycin',
-            type: 'bar'
-        };
-
-        var bar_trace3 = {
-            x: bacteria,
-            y: neomycin,
-            name: 'Neomycin',
-            type: 'bar'
-        };
-
-        var bar_trace4 = {
-            x: bacteria,
-            y: gram_staining,
-            name: 'Gram Staining',
-            type: 'bar'
-        }
-
-        var bar_data = [bar_trace1, bar_trace2, bar_trace3];
-
-        var bar_layout = {
-            barmode: 'group',
-            margin: {
-                b:120
-            },
-            yaxis: {
-                type: 'log',
-                autorange: true
-            },
-            title: 'Bar Chart of the MIC of Penicilin, Streptomycin, and Neomycin',
-        };
-
-        Plotly.newPlot('plot1', bar_data, bar_layout, {staticPlot: true});
+        var yMax = d3.max(data, function(d) {return + d.value}) * 1.05;
 
 
+        var yScale = d3.scaleLinear()
+        	.domain([yMin, yMax])
+        	.range([drawHeight, 0]);
 
 
+        // Using `d3.axisLeft`, create a `yAxis` object that holds can be later rendered in a `g` element
+        // Make sure to set the scale as your `yScale`
+
+        var yAxis = d3.axisLeft()
+        	.scale(yScale);
 
 
-        var a = []
+        /************************************** Rendering Axes and Axis Labels ***************************************/
 
-        for (var i = 0; i < bacteria.length; i++) {
-            var curr = [];
-            curr.push(penicilin[i]);
-            curr.push(streptomycin[i]);
-            curr.push(neomycin[i]);
-            curr.push(gram_staining[i]);
-            curr.push(bacteria[i]);
-            a.push(curr);
-        };
+        // Create an `xAxisLabel` by appending a `g` element to your `svg` variable and give it a class called 'axis'.
+        // Transform the `g` element so that it will be properly positioned (need to shift x and y position)
+        // Finally, use the `.call` method to render your `xAxis` in your `xAxisLabel`        
 
 
-        a.sort(function(a,b) {
-            return a[0]-b[0]
-        });
+        var xAxisLabel = svg.append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + (margin.top + drawHeight) + ')')
+         	.attr('class', 'axis')
+    		.call(xAxis);
 
-        var sorted_pen = [];
-        var sorted_strep = [];
-        var sorted_neo = [];
-        var sorted_gram = [];
-        var sorted_bac = [];
-        for (var i = 0; i < a.length; i++) {
-            sorted_pen.push(a[i][0]);
-            sorted_strep.push(a[i][1]);
-            sorted_neo.push(a[i][2]);
-            sorted_gram.push(a[i][3]);
-            sorted_bac.push(a[i][4]);
-        };
+        // To rotate the text elements, select all of the `text` elements in your `xAxisLabel and rotate them 45 degrees        
+        // This may help: https://bl.ocks.org/mbostock/4403522
 
-        var line_trace1 = {
-            x: sorted_bac,
-            y: sorted_pen,
-            name: 'Penicilin',
-            type: 'scatter'
-        };
+		xAxisLabel.selectAll('text')
+    		.attr("transform", "rotate(315)")
+    		.style("text-anchor", "end");
 
-        var line_trace2 = {
-            x: sorted_bac,
-            y: sorted_strep,
-            name: 'Streptomycin',
-            type: 'scatter'
-        };
-
-        var line_trace3 = {
-            x: sorted_bac,
-            y: sorted_neo,
-            name: 'Neomycin',
-            type: 'scatter',
-        };
-
-        var line_data = [line_trace1, line_trace2, line_trace3];
-
-        var line_layout = {
-            margin: {
-                b:120
-            },
-            yaxis: {
-                type: 'log',
-                autorange: true
-            },
-            title: 'Line Graph of the MIC of Penicilin, Streptomycin, and Neomycin',
-        };
+        /*
+            .attr("y", 0)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+        */
 
 
-        Plotly.newPlot('plot2', line_data, line_layout, {staticPlot: true});
+        // Create a text element to label your x-axis by appending a text element to your `svg` 
+        // You'll need to use the `transform` property to position it below the chart
+        // Set its class to 'axis-label', and set the text to "Device-App Combinations"
+        var xText = svg.append('text')
+        	.text('Device-App Combinations')
+        	.attr('transform', 'translate(' + (drawWidth / 2 - 50) + ',' + (margin.top + drawHeight + 130) + ')')
+        	.attr('class', 'axis-label');
 
 
+        // Using the same pattern as your x-axis, append another g element and create a y-axis for your graph
+        var yAxisLabel = svg.append('g')
+        	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+    		.call(yAxis);
 
 
-        
+        // Using the same pattern as your x-axis, append a text element to label your y axis
+        // Set its class to 'axis-label', and set the text to "Count"
 
-        var box_trace1 = {
-          y: penicilin,
-          name: 'Penicilin',
-          type: 'box'
-        };
+        var yText =  svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0)
+            .attr("x", 0 - (drawHeight / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .attr('class', 'axis-label')
+            .text("Count");  
 
-        var box_trace2 = {
-          y: streptomycin,
-          name: 'Streptomycin',
-          type: 'box'
-        };
+        /************************************** Drawing Data ***************************************/
 
-        var box_trace3 = {
-            y: neomycin,
-            name: 'Neomycin',
-            type: 'box'
-        }
+        // Select all elements with the class 'bar' in your `g` element. Then, conduct a data-join
+        // with your parsedData array to append 'rect' elements with `he class set as 'bar'
+        var bars = g.selectAll('bar').data(data);
 
-        var box_layout = {
-            yaxis: {
-                type: 'log'
-            },
-            height: 700,
-            title: 'Boxplot of the MIC of Penicilin, Streptomycin, and Neomycin',
-        }
+        bars.enter()
+            .append("rect")
+            .style("fill", "green")
+            .attr("x", function(d) { return xScale(d.key) + 5; })    
+            .attr("y", function(d) { return yScale(d.value) })
+            .attr("width", drawWidth / keys.length - 10)
+            .attr("height", function(d) {return drawHeight - yScale(d.value)})
+            .on("mouseover", function() {
+                d3.select(this).style("fill", "red");
+            })
+            .on("mouseout", function() {
+                d3.select(this).style("fill", "green");
+            })
+            .merge(bars);
+ 
 
-        var box_data = [box_trace1, box_trace2, box_trace3];
-
-        Plotly.newPlot('plot3', box_data, box_layout, {staticPlot: true});
-
-
-
-
-
-
-        var stain_color = []
-        for (var i = 0; i < bacteria.length; i++) {
-            if (gram_staining[i] == 'negative') {
-                stain_color.push('red');
-            } else {
-                stain_color.push('green');
-            }
-        };
-
-        var scatter_trace1 = {
-            x: penicilin,
-            y: neomycin,
-            name: bacteria,
-            text: bacteria,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                sizemode: 'area',
-                size: streptomycin,
-                sizeref: .005,
-                color: stain_color
-            }
-        };
+        // Determine which elements are new to the screen (`enter`), and for each element, 
+        // Append a `rect` element, setting the `x`, `y`, `width`, and `height` attributes using your data and scales
 
 
-        var scatter_data = [scatter_trace1];
-
-        var scatter_layout = {
-            xaxis: {
-                title: 'Penicilin', 
-                type: 'log'
-            },
-            yaxis: {
-                title: 'Neomycin',
-                type: 'log'
-            },
-            title: 'Triple Scatterplot of the MIC of Penicilin, Neomycin, and Streptomycin',
-        }
-
-        Plotly.plot('plot4', scatter_data, scatter_layout, {staticPlot: true});
 
     });
-
 });
-
